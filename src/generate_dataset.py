@@ -12,8 +12,8 @@ print('Downloading Enron Dataset...')
 base_url = 'http://www.aueb.gr/users/ion/data/enron-spam/preprocessed/'
 files = ["enron1", "enron2", "enron3", "enron4", "enron5", "enron6"]
 
-if not os.path.exists("raw_enron_placeholder"):
-    os.mkdir("raw_enron_placeholder")
+if not os.path.exists("../data/raw_enron_placeholder"):
+    os.mkdir("../data/raw_enron_placeholder")
 
 print()
 for entry in files:
@@ -22,7 +22,7 @@ for entry in files:
     # Download current enron folder
     url = base_url + entry + ".tar.gz"
     r = requests.get(url)
-    path = "raw_enron_placeholder/" + entry + ".tar.gz"
+    path = "../data/raw_enron_placeholder/" + entry + ".tar.gz"
 
     with open(path, 'wb') as f:
         f.write(r.content)
@@ -30,7 +30,7 @@ for entry in files:
 
     # Unpack to /raw_enron_placeholder/enron1, etc
     print("Unpacking " + entry)
-    shutil.unpack_archive(path, "raw_enron_placeholder/")
+    shutil.unpack_archive(path, "../data/raw_enron_placeholder/")
     print("-------Folder unpacked to: raw_enron_placeholder/" + entry)
     
     print()
@@ -52,8 +52,8 @@ print("Processing directories...")
 # Each has txt "message" files 
 for folder in files:
     print("----Inside " + str(folder) + "...")
-    ham_path = "raw_enron_placeholder/" + folder + "/ham"
-    spam_path = "raw_enron_placeholder/" + folder + "/spam"
+    ham_path = "../data/raw_enron_placeholder/" + folder + "/ham"
+    spam_path = "../data/raw_enron_placeholder/" + folder + "/spam"
 
     # Process non-spams
     for entry in os.scandir(ham_path):
@@ -91,9 +91,9 @@ mails = pd.DataFrame(dataset, columns=[
 
 # Transform to csv
 print("Saving as csv and zip...")
-with zf.ZipFile('enron_spam_data.zip', 'w') as enron_zip:
-    enron_zip.writestr('enron_spam_data.csv', mails.to_csv(index_label = "Message ID"), compress_type=zf.ZIP_DEFLATED)
-print("-------saved as 'enron_spam_data.zip'")
+with zf.ZipFile('../data/enron_spam_data.zip', 'w') as enron_zip:
+    enron_zip.writestr('../data/enron_spam_data.csv', mails.to_csv(index_label = "Message ID"), compress_type=zf.ZIP_DEFLATED)
+print("-------saved as '../data/enron_spam_data.zip'")
 
 print()
 

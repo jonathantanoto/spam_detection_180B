@@ -2,6 +2,7 @@
 data/raw_enron_placeholder/
 data/*.zip
 data/*.csv
+models/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
