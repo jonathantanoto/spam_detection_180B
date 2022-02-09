@@ -48,7 +48,7 @@ while True:
 
     res = 100*predict(input_lst)[0][0]
 
-    verdict = lambda x: 'Spam' if x>0.5 else 'Not Spam'
+    verdict = lambda x: 'Spam' if x>50 else 'Not Spam'
 
     print("Verdict: " + verdict(res))
 
