@@ -19,82 +19,88 @@ import absl.logging
 absl.logging.set_verbosity(absl.logging.ERROR)
 
 
-# load data
-print("---Loading Data---")
-df = pd.read_csv('../data/enron_spam_data.zip', compression='zip',\
- header=0, sep=',', quotechar='"')
-df = df.drop('Message ID', axis=1)
+def build():
+    # load data
+    print("---Loading Data---")
+    df = pd.read_csv('data/enron_spam_data.zip', compression='zip',\
+    header=0, sep=',', quotechar='"')
+    df = df.drop('Message ID', axis=1)
 
-print('Shape of Data: ' + str(df.shape))
-print(df['Spam/Ham'].value_counts())
-print()
+    print('Shape of Data: ' + str(df.shape))
+    print(df['Spam/Ham'].value_counts())
+    print()
 
-# binarizing labels
-print("---Processing Data---")
-df['Spam/Ham']= df['Spam/Ham'].map({'ham': 0, 'spam': 1})
-label = df['Spam/Ham'].values
+    # binarizing labels
+    print("---Processing Data---")
+    df['Spam/Ham']= df['Spam/Ham'].map({'ham': 0, 'spam': 1})
+    label = df['Spam/Ham'].values
 
-# Split data train/test
-train_msg, test_msg, train_labels, test_labels =\
- train_test_split(df['Message'], label, test_size=0.2, random_state=12)
-train_msg, test_msg = train_msg.astype(str), test_msg.astype(str)
+    # Split data train/test
+    train_msg, test_msg, train_labels, test_labels =\
+    train_test_split(df['Message'], label, test_size=0.2, random_state=12)
+    train_msg, test_msg = train_msg.astype(str), test_msg.astype(str)
 
-print()
+    print()
 
-# Use Keras to tokenize, declare hyperparameters
-print("---Tokenizing---")
-tokenizer = Tokenizer(num_words = 500, char_level=False, oov_token = "<OOV>")
-tokenizer.fit_on_texts(train_msg)
+    # Use Keras to tokenize, declare hyperparameters
+    print("---Tokenizing---")
+    tokenizer = Tokenizer(num_words = 1000, #500
+        char_level=False, oov_token = "<OOV>")
+    tokenizer.fit_on_texts(train_msg)
 
-word_index = tokenizer.word_index
+    word_index = tokenizer.word_index
 
-# check how many words 
-index_length = len(word_index)
-print('There are %s unique tokens in training data. ' % index_length)
+    # check how many words 
+    index_length = len(word_index)
+    print('There are %s unique tokens in training data. ' % index_length)
 
-# saving
-with open('../models/tokenizer.pickle', 'wb') as handle:
-    pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL) 
+    # saving
+    if not os.path.exists("models"):
+        os.mkdir("models")
 
-print()
+    with open('models/tokenizer.pickle', 'wb') as handle:
+        pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL) 
 
-# Sequencing and padding on both sets
-print("---Sequencing and Padding---")
-training_sequences = tokenizer.texts_to_sequences(train_msg)
-training_padded = pad_sequences(training_sequences, maxlen = 50,\
- padding = 'post', truncating = 'post' )
-testing_sequences = tokenizer.texts_to_sequences(test_msg)
-testing_padded = pad_sequences(testing_sequences, maxlen = 50,\
- padding = 'post', truncating = 'post')
+    print()
 
- # Shape of train tensor
-print('Training tensor shape: ', training_padded.shape)
-print('Testing tensor shape: ', testing_padded.shape)
+    # Sequencing and padding on both sets
+    print("---Sequencing and Padding---")
+    training_sequences = tokenizer.texts_to_sequences(train_msg)
+    training_padded = pad_sequences(training_sequences, maxlen = 50,\
+    padding = 'post', truncating = 'post' )
+    testing_sequences = tokenizer.texts_to_sequences(test_msg)
+    testing_padded = pad_sequences(testing_sequences, maxlen = 50,\
+    padding = 'post', truncating = 'post')
 
-print()
+    # Shape of train tensor
+    print('Training tensor shape: ', training_padded.shape)
+    print('Testing tensor shape: ', testing_padded.shape)
 
-# Bi-directional LSTM Spam detection architecture
-print("---Training Neural Network Model---")
-model = Sequential()
-model.add(Embedding(500, 16, input_length=50))
-model.add(Bidirectional(LSTM(20, dropout=0.2,\
- return_sequences=False)))
-model.add(Dense(1, activation='sigmoid'))
+    print()
 
-model.summary()
+    # Bi-directional LSTM Spam detection architecture
+    print("---Training Neural Network Model---")
+    model = Sequential()
+    model.add(Embedding(1000,#500
+        16, input_length=50))
+    model.add(Bidirectional(LSTM(20, dropout=0.2,\
+    return_sequences=False)))
+    model.add(Dense(1, activation='sigmoid'))
 
-model.compile(loss = 'binary_crossentropy', optimizer = 'adam',\
- metrics=['accuracy'])
+    model.summary()
 
-num_epochs = 30
-early_stop = EarlyStopping(monitor='val_loss', patience=2)
-history = model.fit(training_padded, train_labels , epochs=num_epochs, 
-                    validation_data=(testing_padded, test_labels),
-                    callbacks =[early_stop], verbose=2)
+    model.compile(loss = 'binary_crossentropy', optimizer = 'adam',\
+    metrics=['accuracy'])
 
-print()
+    num_epochs = 30
+    early_stop = EarlyStopping(monitor='val_loss', patience=2)
+    history = model.fit(training_padded, train_labels , epochs=num_epochs, 
+                        validation_data=(testing_padded, test_labels),
+                        callbacks =[early_stop], verbose=2)
 
-# save model
-model.save("../models/model")
+    print()
 
-print("Model Saved.")
+    # save model
+    model.save("models/model")
+
+    print("Model Saved.")
