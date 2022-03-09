@@ -53,7 +53,7 @@ def test():
 
         print("Verdict: " + verdict(res))
 
-        print("Probability of being spam: " + str(res))
+        print("Probability of being spam: " + str(round(res,2)) + '%')
         print()
 
         print("Ctrl + C to exit")
