@@ -72,10 +72,6 @@ def build():
     testing_padded = pad_sequences(testing_sequences, maxlen = 50,\
     padding = 'post', truncating = 'post')
 
-    # Reshaping labels for LSTM 
-    train_labels_mod = np.asarray(train_labels).astype('float32').reshape((-1,1))
-    test_labels_mod = np.asarray(test_labels).astype('float32').reshape((-1,1))
-
     # Shape of train tensor
     print('Training tensor shape: ', training_padded.shape)
     print('Testing tensor shape: ', testing_padded.shape)
@@ -86,8 +82,7 @@ def build():
     print("---Training Neural Network Model---")
     model = Sequential()
     model.add(Embedding(1000, 16, input_length=50))
-    model.add(Bidirectional(LSTM(20, dropout=0.2,\
-    return_sequences=True)))
+    model.add(Bidirectional(LSTM(20, dropout=0.2)))
     model.add(Dense(1, activation='sigmoid'))
 
     model.summary()
@@ -97,8 +92,8 @@ def build():
 
     num_epochs = 30
     early_stop = EarlyStopping(monitor='val_loss', patience=2)
-    history = model.fit(training_padded, train_labels_mod, epochs=num_epochs, 
-                        validation_data=(testing_padded, test_labels_mod),
+    history = model.fit(training_padded, train_labels, epochs=num_epochs, 
+                        validation_data=(testing_padded, test_labels),
                         callbacks =[early_stop], verbose=2)
 
     print()
