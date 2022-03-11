@@ -41,3 +41,10 @@ ROOT FOLDER
 ### `notebooks`
 
 * Jupyter notebooks for Reports and line-by-line executed code.
+* Final Report in PDF form.
+
+
+## Links
+
+* Website: https://github.com/jonathantanoto/spamdetection
+* Presentation Video: https://youtu.be/wkc7R0J4_VM
