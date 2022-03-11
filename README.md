@@ -46,5 +46,5 @@ ROOT FOLDER
 
 ## Links
 
-* Website: https://github.com/jonathantanoto/spamdetection
+* Website: https://jonathantanoto.github.io/spamdetection/
 * Presentation Video: https://youtu.be/wkc7R0J4_VM
